@@ -8,8 +8,8 @@ model = models[0].name
 
 st.title("Student Career Counselor Chatbot")
 
-# Initial chatbot response
-chatbot = palm.chat(context="Act like a Student Career Counsellor.")  # Initialize the chatbot
+# Initial chatbot response context
+chat_context = "Act like a Student Career Counsellor."
 
 # Display the initial message
 st.write("Hello, I'm your Student Career Counselor, how can I help you?")
@@ -18,9 +18,18 @@ st.write("Hello, I'm your Student Career Counselor, how can I help you?")
 user_message = st.text_input("Enter your message:")
 
 if user_message:
-    # Send the user's message to the chatbot
-    chatbot.reply(user_message)
-    
-    # Get the bot's response
-    response = chatbot.response
-    st.write("Bot:", response.last)  # Display the bot's response
+    try:
+        # Send the user's message to the chatbot
+        response = palm.generate_text(
+            model=model,
+            prompt=f"{chat_context}\nUser: {user_message}\nBot:",
+            temperature=0.7,
+            max_output_tokens=200,
+        )
+        # Display the bot's response
+        if response.result:
+            st.write("Bot:", response.result)
+        else:
+            st.write("Bot: Sorry, I couldn't generate a response. Please try again.")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
